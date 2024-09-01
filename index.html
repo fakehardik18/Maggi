@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+    <header class="text-gray-400 bg-gray-800 body-font">
+        <header class="text-gray-400 bg-gray-900 body-font">
+            <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+                <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2"
+                        class="w-10 h-10 text-white p-2 bg-yellow-500 rounded-full" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.89 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z">
+                        </path>
+                    </svg>
+
+
+
+                    <span class="ml-3 text-xl">Maggi Central</span>
+                </a>
+                <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+                    <a class="mr-5 hover:text-white">Dummy link</a>
+                </nav>
+                <button
+                    class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0">Silly
+                    Button
+                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+    </header>
+    <section class="text-gray-400 body-font overflow-hidden">
+        <div class="container px-5 py-18 mx-auto">
+            <div class="lg:w-4/5 mx-auto flex flex-wrap">
+                <img alt="ecommerce" class="lg:w-1/2 w-full lg:h-auto h-64 object-cover object-center rounded"
+                    src="giphy.gif">
+                <div class="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
+                    <h2 class="text-sm title-font text-gray-500 tracking-widest">AngieKeys19 Special</h2>
+                    <h1 class="text-white text-3xl title-font font-medium mb-1">Maggi (i think)</h1>
+                    <p class="leading-relaxed mb-5">its like maggi with maggi and a bit of maggi with side with a
+                        sprinkle of maggi and just another tablespoon and like a splash of maggi with a pinch of maggi
+                        and yes i like maggi cause maggi is like maggi without maggi. pls upi me at ur doorstep </p>
+                    <div class="flex items-center mb-5">
+                        <div class="flex items-center space-x-4">
+                            <input type="text" id="room-number" name="room-number" placeholder="Room" required
+                                maxlength="4" pattern="\d{1,4}"
+                                class="bg-gray-700 rounded border border-gray-600 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out w-24">
+                            <select id="quantity"
+                                class="bg-gray-700 rounded border border-gray-600 focus:ring-2 focus:ring-yellow-900 appearance-none py-1 focus:outline-none focus:border-yellow-500 text-gray-100 pl-3 pr-10 w-24">
+                                <option value="1">Qty: 1</option>
+                                <option value="2">Qty: 2</option>
+                                <option value="3">Qty: 3</option>
+                                <option value="4">Qty: 4</option>
+                            </select>
+                            <input type="tel" id="phone-number" name="phone-number" placeholder="Phone" required
+                                class="bg-gray-700 rounded border border-gray-600 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out w-32"
+                                maxlength="10">
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="price" class="title-font font-medium text-2xl text-white mr-4">₹20.00</span>
+                        <button id="order-button"
+                            class="text-white bg-yellow-500 border-0 py-2 px-6 focus:outline-none hover:bg-yellow-600 rounded">Order</button>
+                    </div>
+                    <!-- Confirmation message section -->
+                    <div id="confirmation-message" class="mt-4 text-lg hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const quantitySelect = document.getElementById('quantity');
+        const priceSpan = document.getElementById('price');
+        const orderButton = document.getElementById('order-button');
+        const roomNumberInput = document.getElementById('room-number');
+        const phoneNumberInput = document.getElementById('phone-number');
+        const confirmationMessage = document.getElementById('confirmation-message');
+
+        quantitySelect.addEventListener('change', updatePrice);
+        orderButton.addEventListener('click', placeOrder);
+
+        function updatePrice() {
+            const quantity = parseInt(quantitySelect.value);
+            const pricePerUnit = 20;
+            const totalPrice = quantity * pricePerUnit;
+            priceSpan.textContent = `₹${totalPrice.toFixed(2)}`;
+        }
+
+        async function isWhitelisted(number, room) {
+            const response = await fetch('db.json');
+            const data = await response.json();
+            return data[room] && data[room].includes(Number(number));
+        }
+        function sendMessage() {
+            let date = new Date().toLocaleString();
+            const request = new XMLHttpRequest();
+            request.open("POST", "https://discord.com/api/webhooks/1279925330047668317/pTu3--gm3Me5e3sEOAO9avpJ-DjlcvZrIGRiY37v3DkeVX7TmJJjKcovcXdUCafnDXxj");
+
+            request.setRequestHeader('Content-type', 'application/json');
+
+            const params = {
+                content: `:alarm_clock::${date}\n:mobile_phone::${phoneNumberInput.value}\n:house::${roomNumberInput.value}\n:ramen::x${quantitySelect.value}`
+            }
+
+            request.send(JSON.stringify(params));
+        }
+        async function placeOrder() {
+            if (!roomNumberInput.checkValidity() || !phoneNumberInput.checkValidity()) {
+                showMessage("Please fill in all required fields correctly!", 'red');
+                return;
+            }
+
+            const roomNumber = roomNumberInput.value;
+            const phoneNumber = phoneNumberInput.value;
+
+            if (!await isWhitelisted(phoneNumber, roomNumber)) {
+                showMessage("Room and phone number are not whitelisted!", 'red');
+                return;
+            }
+
+            const quantity = quantitySelect.value;
+            const totalPrice = priceSpan.textContent;
+
+            confirmationMessage.textContent = `Order placed!`;
+            confirmationMessage.classList.remove('hidden');
+            confirmationMessage.classList.add('text-green-500');
+            sendMessage()
+
+
+            // Trigger full-screen confetti effect
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function () {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                }));
+                confetti(Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                }));
+            }, 250);
+        }
+
+        function showMessage(message, color) {
+            confirmationMessage.textContent = message;
+            confirmationMessage.className = `text-${color}-500`;
+            confirmationMessage.classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
